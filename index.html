@@ -193,6 +193,17 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
+        .btn-group {
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 420px) {
+            .btn-group .btn {
+                width: calc(50% - 12px);
+                min-width: 132px;
+            }
+        }
+
         .btn:active {
             transform: scale(0.96);
         }
@@ -221,6 +232,18 @@
 
         .btn-know:hover {
             background: var(--accent-hover);
+        }
+
+        .btn-prev {
+            background: #eef3f7;
+            color: var(--text-main);
+            border: 2px solid #eef3f7;
+        }
+
+        .btn-prev:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .hidden {
@@ -307,6 +330,7 @@
         
         <!-- 揭晓状态：显示"不认识"和"认识" -->
         <div class="btn-group hidden" id="btn-grade-group" style="display:flex; gap:20px; width:100%; justify-content:center;">
+            <button class="btn btn-prev" id="btn-prev">上一个</button>
             <button class="btn btn-forgot" id="btn-forgot">没记住</button>
             <button class="btn btn-know" id="btn-know">记住了</button>
         </div>
@@ -895,6 +919,7 @@
         
         btnReveal: document.getElementById('btn-reveal'),
         btnGroup: document.getElementById('btn-grade-group'),
+        btnPrev: document.getElementById('btn-prev'),
         
         progressText: document.getElementById('progress-text'),
         progressBar: document.getElementById('progress-bar'),
@@ -925,6 +950,7 @@
         dom.card.classList.remove('revealed');
         dom.btnReveal.classList.remove('hidden');
         dom.btnGroup.classList.add('hidden');
+        dom.btnPrev.disabled = index === 0;
 
         // 填充内容
         dom.word.textContent = item.word;
@@ -963,6 +989,13 @@
         renderCard(currentIndex);
     }
 
+    function previousCard() {
+        if (currentIndex <= 0) return;
+        currentIndex--;
+        updateProgress();
+        renderCard(currentIndex);
+    }
+
     function showFinish() {
         dom.card.style.display = 'none';
         dom.finishScreen.style.display = 'block';
@@ -979,6 +1012,8 @@
         nextCard();
     });
 
+    dom.btnPrev.addEventListener('click', previousCard);
+
     document.getElementById('btn-know').addEventListener('click', () => {
         knownCount++;
         nextCard();
@@ -992,6 +1027,8 @@
             if (!dom.card.classList.contains('revealed')) {
                 reveal();
             }
+        } else if (e.key === 'Backspace' || e.key === 'ArrowUp') {
+            previousCard();
         } else if (e.key === '1' || e.key === 'ArrowLeft') {
             if (dom.card.classList.contains('revealed')) {
                 nextCard(); // 没记住
